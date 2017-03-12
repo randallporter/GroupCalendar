@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -26,20 +27,22 @@
             android:name=".NavDrawer"
             android:label="@string/title_activity_nav_drawer"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".calendarTest">
+        <activity android:name=".CalendarManager">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".calendarInsertTest">
+        <activity android:name=".AccountActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CalendarEventListItem" />
+        <activity android:name=".CalendarEventList"></activity>
     </application>
 
 </manifest>

@@ -1,22 +1,5 @@
 package randall.porter.com.groupcalendar;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.ExponentialBackOff;
-
-import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.client.util.DateTime;
-
-import com.google.api.services.calendar.model.*;
-
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -30,7 +13,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,16 +20,31 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
+
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class calendarTest extends Activity
+public class AccountActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
+    CalendarManager calendarManager;
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
     private Button mCallApiButton;
@@ -58,11 +55,10 @@ public class calendarTest extends Activity
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
-    private static final String BUTTON_TEXT = "Call Google Calendar API";
+    private static final String BUTTON_TEXT = "Google Calendar API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
+    private static final String[] SCOPES = { CalendarScopes.CALENDAR };
 
-    int variable = 0;
 
     /**
      * Create the main activity.
@@ -71,7 +67,6 @@ public class calendarTest extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        variable = 0;
         LinearLayout activityLayout = new LinearLayout(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -115,6 +110,8 @@ public class calendarTest extends Activity
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
+
+        calendarManager = new CalendarManager();
     }
 
     /**
@@ -132,12 +129,7 @@ public class calendarTest extends Activity
         } else if (! isDeviceOnline()) {
             mOutputText.setText("No network connection available.");
         } else {
-            if (variable == 1)
-                new MakeRequestTask(mCredential).execute();
-            else
-                new MakeRequestTask(mCredential).execute();
-
-
+            calendarManager.getEventsFromApi(mCredential);
         }
     }
 
@@ -271,7 +263,7 @@ public class calendarTest extends Activity
      */
     private boolean isDeviceOnline() {
         ConnectivityManager connMgr =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) this.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
     }
@@ -313,170 +305,10 @@ public class calendarTest extends Activity
             final int connectionStatusCode) {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         Dialog dialog = apiAvailability.getErrorDialog(
-                calendarTest.this,
+                AccountActivity.this,
                 connectionStatusCode,
                 REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
     }
 
-    /**
-     * An asynchronous task that handles the Google Calendar API call.
-     * Placing the API calls in their own task ensures the UI stays responsive.
-     */
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
-        private com.google.api.services.calendar.Calendar mService = null;
-        private Exception mLastError = null;
-
-        MakeRequestTask(GoogleAccountCredential credential) {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.calendar.Calendar.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Google Calendar API Android Quickstart")
-                    .build();
-        }
-
-        /**
-         * Background task to call Google Calendar API.
-         * @param params no parameters needed for this task.
-         */
-        @Override
-        protected List<String> doInBackground(Void... params) {
-            try {
-                return getDataFromApi();
-            } catch (Exception e) {
-                mLastError = e;
-                cancel(true);
-                return null;
-            }
-        }
-
-        /**
-         * Fetch a list of the next 10 events from the primary calendar.
-         * @return List of Strings describing returned events.
-         * @throws IOException
-         */
-        private List<String> getDataFromApi() throws IOException {
-            // List the next 10 events from the primary calendar.
-            DateTime now = new DateTime(System.currentTimeMillis());
-            List<String> eventStrings = new ArrayList<String>();
-            Events events = mService.events().list("primary")
-                    .setMaxResults(10)
-                    .setTimeMin(now)
-                    .setOrderBy("startTime")
-                    .setSingleEvents(true)
-                    .execute();
-            List<Event> items = events.getItems();
-
-            for (Event event : items) {
-                DateTime start = event.getStart().getDateTime();
-                if (start == null) {
-                    // All-day events don't have start times, so just use
-                    // the start date.
-                    start = event.getStart().getDate();
-                }
-                eventStrings.add(
-                        String.format("%s (%s)", event.getSummary(), start));
-            }
-            return eventStrings;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mOutputText.setText("");
-            mProgress.show();
-        }
-
-        @Override
-        protected void onPostExecute(List<String> output) {
-            mProgress.hide();
-            if (output == null || output.size() == 0) {
-                mOutputText.setText("No results returned.");
-            } else {
-                output.add(0, "Data retrieved using the Google Calendar API:");
-                mOutputText.setText(TextUtils.join("\n", output));
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mProgress.hide();
-            if (mLastError != null) {
-                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                    .getConnectionStatusCode());
-                } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            calendarTest.REQUEST_AUTHORIZATION);
-                } else {
-                    mOutputText.setText("The following error occurred:\n"
-                            + mLastError.getMessage());
-                }
-            } else {
-                mOutputText.setText("Request cancelled.");
-            }
-        }
-    }
-
-//    /**
-//     * An asynchronous task that handles the Google Calendar API call.
-//     * Placing the API calls in their own task ensures the UI stays responsive.
-//     */
-//    private class MakeInsertRequestTask extends AsyncTask<Void, Void, Boolean> {
-//        private com.google.api.services.calendar.Calendar mService = null;
-//
-//        MakeInsertRequestTask(GoogleAccountCredential credential) {
-//            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-//            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-//            mService = new com.google.api.services.calendar.Calendar.Builder(
-//                    transport, jsonFactory, credential)
-//                    .setApplicationName("Google Calendar API Android Quickstart")
-//                    .build();
-//        }
-//
-//        /**
-//         * Background task to call Google Calendar API.
-//         * @param params no parameters needed for this task.
-//         */
-//        @Override
-//        protected Boolean doInBackground(Void... params) {
-//            try {
-//                Event event = new Event()
-//                        .setSummary("Google I/O 2015")
-//                        .setLocation("800 Howard St., San Francisco, CA 94103")
-//                        .setDescription("A chance to hear more about Google's developer products.");
-//
-//                DateTime startDateTime = new DateTime("2017-03-08T09:00:00-07:00");
-//                EventDateTime start = new EventDateTime()
-//                        .setDateTime(startDateTime)
-//                        .setTimeZone("America/Los_Angeles");
-//                event.setStart(start);
-//
-//                DateTime endDateTime = new DateTime("2017-03-08T17:00:00-07:00");
-//                EventDateTime end = new EventDateTime()
-//                        .setDateTime(endDateTime)
-//                        .setTimeZone("America/Los_Angeles");
-//                event.setEnd(end);
-//                String calendarId = "primary";
-//                mService.events().insert(calendarId, event).execute();
-//                return true;
-//            } catch (Exception e) {
-//                cancel(true);
-//                return false;
-//            }
-//        }
-//
-//
-//        @Override
-//        protected void onPostExecute(Boolean result) {
-//            mProgress.hide();
-//            if (!result) {
-//                mOutputText.setText("Not Added.");
-//            } else {
-//                mOutputText.setText("Event Added");
-//            }
-//        }
-//    }
 }
