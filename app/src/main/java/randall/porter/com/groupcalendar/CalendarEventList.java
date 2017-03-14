@@ -16,6 +16,7 @@ public class CalendarEventList extends AppCompatActivity {
         ListView lv = (ListView) findViewById(R.id.lvCalendarEvents);
         calendarEventAdapter  = new CalendarEventAdapter(this);
         lv.setAdapter(calendarEventAdapter);
+        UpdateList();
     }
 
     public void UpdateList(){

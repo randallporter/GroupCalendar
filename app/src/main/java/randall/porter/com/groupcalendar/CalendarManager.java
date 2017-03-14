@@ -28,9 +28,6 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-// TODO: 3/11/2017 InsertCalendarEvent needs to be done next.
-// TODO... Currently it works inserting a static event
-
 
 public class CalendarManager {
 
@@ -50,7 +47,7 @@ public class CalendarManager {
     public void insertEvent(CalendarEvent calendarEvent) {
         GoogleAccountCredential mCredential = myApplication.getCurrentCredentials();
         new InsertCalendarEvent(mCredential, calendarEvent).execute();
-        //calendarEvent.save();
+        calendarEvent.save();
     }
 
     private class GetCalendarEvents extends AsyncTask<Void, Void, Boolean> {
@@ -88,7 +85,7 @@ public class CalendarManager {
             DateTime lastOfMonth = new DateTime(calendar.getTime());
             //todo add loop for all calendars in group
             Events events = mService.events()
-                    .list("primary") //iv6v1cml8ue6gjljgdlfh7s39c@group.calendar.google.com
+                    .list("randallporter0@gmail.com") //iv6v1cml8ue6gjljgdlfh7s39c@group.calendar.google.com
                     .setTimeMin(firstOfMonth)
                     .setTimeMax(lastOfMonth)
                     .setOrderBy("startTime")
@@ -116,29 +113,32 @@ public class CalendarManager {
                 calendarEvent.setSummary(event.getSummary());
                 calendarEvent.setStartTime(new Date(start.getValue()));
                 calendarEvent.setEndTime(new Date(end.getValue()));
+                calendarEvent.setCalendarID("randallporter0@gmail.com");
+                //todo figure out how to get cal ID
                 calEvents.add(calendarEvent);
+                calendarEvent.save();
             }
             //batch update DB
-            FlowManager.getDatabase(MyDatabase.class)
-                    .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                            new ProcessModelTransaction.ProcessModel<CalendarEvent>() {
-                                @Override
-                                public void processModel(CalendarEvent calendarEvent) {
-                                    calendarEvent.save();
-                                }
-                            }).addAll(calEvents).build())  // add elements (can also handle multiple)
-                    .error(new Transaction.Error() {
-                        @Override
-                        public void onError(Transaction transaction, Throwable error) {
-
-                        }
-                    })
-                    .success(new Transaction.Success() {
-                        @Override
-                        public void onSuccess(Transaction transaction) {
-
-                        }
-                    }).build().execute();
+//            FlowManager.getDatabase(MyDatabase.class)
+//                    .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+//                            new ProcessModelTransaction.ProcessModel<CalendarEvent>() {
+//                                @Override
+//                                public void processModel(CalendarEvent calendarEvent) {
+//                                    calendarEvent.save();
+//                                }
+//                            }).addAll(calEvents).build())  // add elements (can also handle multiple)
+//                    .error(new Transaction.Error() {
+//                        @Override
+//                        public void onError(Transaction transaction, Throwable error) {
+//                            Log.e("insert error",transaction.error().toString());
+//                        }
+//                    })
+//                    .success(new Transaction.Success() {
+//                        @Override
+//                        public void onSuccess(Transaction transaction) {
+//
+//                        }
+//                    }).build().execute();
 
             return true;
         }

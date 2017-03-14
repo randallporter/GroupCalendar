@@ -24,17 +24,25 @@ public class CalendarEvent extends BaseModel {
     @Column
     private Date StartTime;
     @Column
-    @Nullable
     private Date EndTime;
     @Column
+    @Nullable
     private String Summary;
     @Column
     @Nullable
     private String Description;
     @Column
+    @Nullable
     private String CreatorEmail;
+    @Column
+    @Nullable
+    private String CalendarID;
 
     public CalendarEvent() {
+    }
+
+    public String getCalendarID() {
+        return CalendarID;
     }
 
     public String getID() {
@@ -53,38 +61,42 @@ public class CalendarEvent extends BaseModel {
         StartTime = startTime;
     }
 
-    @Nullable
     public Date getEndTime() {
         return EndTime;
     }
 
-    public void setEndTime(@Nullable Date endTime) {
+    public void setEndTime(Date endTime) {
         EndTime = endTime;
     }
 
+    @Nullable
     public String getSummary() {
         return Summary;
     }
 
-    public void setSummary(String summary) {
+    public void setSummary(@Nullable String summary) {
         Summary = summary;
     }
 
+    @Nullable
     public String getDescription() {
         return Description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(@Nullable String description) {
         Description = description;
     }
 
+    @Nullable
     public String getCreatorEmail() {
         return CreatorEmail;
     }
 
-    public void setCreatorEmail(String creatorEmail) {
+    public void setCreatorEmail(@Nullable String creatorEmail) {
         CreatorEmail = creatorEmail;
     }
 
-
+    public void setCalendarID(@Nullable String calendarID) {
+        CalendarID = calendarID;
+    }
 }
