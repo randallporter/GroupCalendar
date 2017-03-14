@@ -110,8 +110,9 @@ public class AccountActivity extends Activity
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
+        ((MyApplication)this.getApplication()).setGoogleAccountCredential(mCredential);
 
-        calendarManager = new CalendarManager();
+        calendarManager = new CalendarManager((MyApplication)this.getApplication());
     }
 
     /**
@@ -129,7 +130,7 @@ public class AccountActivity extends Activity
         } else if (! isDeviceOnline()) {
             mOutputText.setText("No network connection available.");
         } else {
-            calendarManager.getEventsFromApi(mCredential);
+            calendarManager.getEventsFromApi();
         }
     }
 

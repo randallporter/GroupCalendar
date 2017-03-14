@@ -51,6 +51,20 @@ public class MainActivity extends AppCompatActivity{
             }
         });
         activityLayout.addView(ViewEvents);
+
+        final Button addEvent;
+        addEvent = new Button(this);
+        addEvent.setText("Add Event");
+        addEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), AddEvent.class);
+                startActivity(intent);
+            }
+        });
+        activityLayout.addView(addEvent);
+
+
         setContentView(activityLayout);
     }
 }

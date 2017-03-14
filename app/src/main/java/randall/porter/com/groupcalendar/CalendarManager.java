@@ -16,6 +16,8 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
+import android.app.Application;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,6 +25,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.sql.*;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 // TODO: 3/11/2017 InsertCalendarEvent needs to be done next.
@@ -32,13 +35,22 @@ import java.util.*;
 public class CalendarManager {
 
     private static final String[] SCOPES = { CalendarScopes.CALENDAR };
+    private MyApplication myApplication;
 
-    public CalendarManager() {
+    public CalendarManager(MyApplication myApplication) {
+        this.myApplication = myApplication;
     }
 
-    public void getEventsFromApi(GoogleAccountCredential mCredential) {
+    public void getEventsFromApi() {
+        GoogleAccountCredential mCredential = myApplication.getCurrentCredentials();
         new GetCalendarEvents(mCredential).execute();
         //new InsertCalendarEvent(mCredential).execute();
+    }
+
+    public void insertEvent(CalendarEvent calendarEvent) {
+        GoogleAccountCredential mCredential = myApplication.getCurrentCredentials();
+        new InsertCalendarEvent(mCredential, calendarEvent).execute();
+        //calendarEvent.save();
     }
 
     private class GetCalendarEvents extends AsyncTask<Void, Void, Boolean> {
@@ -74,7 +86,9 @@ public class CalendarManager {
             calendar.set(java.util.Calendar.MONTH, +3);
             calendar.set(java.util.Calendar.DAY_OF_MONTH, -1);
             DateTime lastOfMonth = new DateTime(calendar.getTime());
-            Events events = mService.events().list("primary")
+            //todo add loop for all calendars in group
+            Events events = mService.events()
+                    .list("primary") //iv6v1cml8ue6gjljgdlfh7s39c@group.calendar.google.com
                     .setTimeMin(firstOfMonth)
                     .setTimeMax(lastOfMonth)
                     .setOrderBy("startTime")
@@ -158,14 +172,16 @@ public class CalendarManager {
     private class InsertCalendarEvent extends AsyncTask<Void, Void, Boolean> {
         private com.google.api.services.calendar.Calendar mService = null;
         private Exception mLastError = null;
+        private CalendarEvent calendarEvent;
 
-        InsertCalendarEvent(GoogleAccountCredential credential) {
+        InsertCalendarEvent(GoogleAccountCredential credential, CalendarEvent calendarEvent) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.calendar.Calendar.Builder(
                     transport, jsonFactory, credential)
                     .setApplicationName("Google Calendar API Android Quickstart")
                     .build();
+            this.calendarEvent = calendarEvent;
         }
 
         /**
@@ -189,22 +205,25 @@ public class CalendarManager {
          * @throws IOException
          */
         private Boolean InsertEvent() throws IOException {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'kk:mm:ss'-07:00'");
+            // TODO: 3/14/2017 figure out how to display GMT. X notation doesn't work in android but Z does. Z = '-0700'
+            //Format example from google "2017-03-11T10:00:00-07:00"
             Event event = new Event()
-                    .setSummary("Google I/O 2015")
-                    .setLocation("800 Howard St., San Francisco, CA 94103")
-                    .setDescription("A chance to hear more about Google's developer products.");
+                    .setSummary(calendarEvent.getSummary())
+                    .setDescription("No Description yet");
 
-            DateTime startDateTime = new DateTime("2017-03-11T09:00:00-07:00");
+            DateTime startDateTime = new DateTime(format.format(calendarEvent.getStartTime()));
             EventDateTime start = new EventDateTime()
                     .setDateTime(startDateTime)
                     .setTimeZone("America/Los_Angeles");
             event.setStart(start);
 
-            DateTime endDateTime = new DateTime("2017-03-11T10:00:00-07:00");
+            DateTime endDateTime = new DateTime(format.format(calendarEvent.getEndTime()));
             EventDateTime end = new EventDateTime()
                     .setDateTime(endDateTime)
                     .setTimeZone("America/Los_Angeles");
             event.setEnd(end);
+            //todo get selected calendar id
             String calendarId = "primary";
             mService.events().insert(calendarId, event).execute();
             return true;

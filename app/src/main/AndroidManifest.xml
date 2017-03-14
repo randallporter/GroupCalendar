@@ -42,7 +42,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".CalendarEventListItem" />
-        <activity android:name=".CalendarEventList"></activity>
+        <activity android:name=".CalendarEventList" />
+        <activity android:name=".AddEvent"></activity>
     </application>
 
 </manifest>

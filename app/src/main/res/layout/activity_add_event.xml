@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_add_event"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="randall.porter.com.groupcalendar.AddEvent">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:textSize="26sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/txtEventSummary"
+        android:hint="Enter Event Title"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="26sp"
+        android:id="@+id/txtStart"
+        android:onClick="showDateTimePicker"
+        android:text="Click To Enter Start Time"
+        android:layout_marginTop="17dp"
+        android:layout_below="@+id/txtEventSummary"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <View
+        android:id="@+id/StartTimeLine"
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        android:background="#FF00FF00"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/txtStart"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="26sp"
+        android:id="@+id/txtEnd"
+        android:onClick="showDateTimePicker"
+        android:text="Click To Enter End Time"
+        android:layout_below="@+id/StartTimeLine"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="17dp" />
+
+    <View
+        android:id="@+id/EndTimeLine"
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        android:background="#FF00FF00"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/txtEnd"/>
+
+    <Button
+        android:text="Add Event"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/EndTimeLine"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="13dp"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="16dp"
+        android:id="@+id/txtAddEvent"
+        android:onClick="AddEvent"/>
+
+
+</RelativeLayout>

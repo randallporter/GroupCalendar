@@ -59,9 +59,13 @@ public class CalendarEventAdapter extends BaseAdapter {
         TextView txtDate = (TextView) convertView.findViewById(R.id.txtTime);
 
         txtName.setText(calendarEvent.getSummary());
-        SimpleDateFormat format = new SimpleDateFormat("MM/dd hh:mm aa");
-        txtDate.setText(format.format(calendarEvent.getStartTime()) + " to " +
-                format.format(calendarEvent.getEndTime()));
+        //SimpleDateFormat format = new SimpleDateFormat("MM/dd hh:mm aa");
+        //txtDate.setText(format.format(calendarEvent.getStartTime()) + " to " +
+                //format.format(calendarEvent.getEndTime()));
+        if (calendarEvent.getStartTime() != null && calendarEvent.getEndTime() != null) {
+            txtDate.setText(calendarEvent.getStartTime().toString() + " to " +
+                    calendarEvent.getEndTime().toString());
+        }
 
         return convertView;
     }
