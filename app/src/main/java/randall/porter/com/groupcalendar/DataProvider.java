@@ -35,4 +35,17 @@ public class DataProvider {
                 .from(CalendarModel.class)
                 .queryList();
     }
+
+    public List<String> getCalendarAccounts(Boolean includePrimary) {
+        List<String> rtnList = new ArrayList<>();
+
+        if (includePrimary)
+            rtnList.add("primary");
+
+        for (CalendarModel calendarModel : getCalendarModelList()) {
+            rtnList.add(calendarModel.getCalendarID());
+        }
+
+        return rtnList;
+    }
 }

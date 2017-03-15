@@ -6,8 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -25,6 +27,13 @@ public class AddEvent extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
+
+        Spinner dropdown = (Spinner)findViewById(R.id.spAccount);
+        DataProvider dataProvider = new DataProvider();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item,
+                dataProvider.getCalendarAccounts(true));
+        dropdown.setAdapter(adapter);
     }
 
 
@@ -56,16 +65,18 @@ public class AddEvent extends AppCompatActivity {
         EditText txtSummary = (EditText) findViewById(R.id.txtEventSummary);
         TextView txtStart = (TextView) findViewById(R.id.txtStart);
         TextView txtEnd = (TextView) findViewById(R.id.txtEnd);
+        Spinner dropdown = (Spinner)findViewById(R.id.spAccount);
 
         CalendarEvent calendarEvent = new CalendarEvent();
         calendarEvent.setSummary(txtSummary.getText().toString());
         calendarEvent.setStartTime((Date) txtStart.getTag());
         calendarEvent.setEndTime((Date) txtEnd.getTag());
-        calendarEvent.setCalendarID("randallporter0@gmail.com"); // TODO: 3/14/2017 change from static
+        calendarEvent.setCalendarID(dropdown.getSelectedItem().toString());
 
-        CalendarManager calendarManager = new CalendarManager((MyApplication)this.getApplication());
+        CalendarManager calendarManager = new CalendarManager();
         //insert event will save and send to google calendar
-        calendarManager.insertEvent(calendarEvent);
+        calendarManager.insertEvent(calendarEvent, (MyApplication)this.getApplication());
+        //finish();
     }
 
 }
