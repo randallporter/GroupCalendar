@@ -85,7 +85,7 @@ public class CalendarManager {
             DateTime lastOfMonth = new DateTime(calendar.getTime());
             //todo add loop for all calendars in group
             Events events = mService.events()
-                    .list("randallporter0@gmail.com") //iv6v1cml8ue6gjljgdlfh7s39c@group.calendar.google.com
+                    .list("randallporter0@gmail.com")
                     .setTimeMin(firstOfMonth)
                     .setTimeMax(lastOfMonth)
                     .setOrderBy("startTime")
@@ -116,29 +116,29 @@ public class CalendarManager {
                 calendarEvent.setCalendarID("randallporter0@gmail.com");
                 //todo figure out how to get cal ID
                 calEvents.add(calendarEvent);
-                calendarEvent.save();
+                //calendarEvent.save();
             }
             //batch update DB
-//            FlowManager.getDatabase(MyDatabase.class)
-//                    .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-//                            new ProcessModelTransaction.ProcessModel<CalendarEvent>() {
-//                                @Override
-//                                public void processModel(CalendarEvent calendarEvent) {
-//                                    calendarEvent.save();
-//                                }
-//                            }).addAll(calEvents).build())  // add elements (can also handle multiple)
-//                    .error(new Transaction.Error() {
-//                        @Override
-//                        public void onError(Transaction transaction, Throwable error) {
-//                            Log.e("insert error",transaction.error().toString());
-//                        }
-//                    })
-//                    .success(new Transaction.Success() {
-//                        @Override
-//                        public void onSuccess(Transaction transaction) {
-//
-//                        }
-//                    }).build().execute();
+            FlowManager.getDatabase(MyDatabase.class)
+                    .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+                            new ProcessModelTransaction.ProcessModel<CalendarEvent>() {
+                                @Override
+                                public void processModel(CalendarEvent calendarEvent) {
+                                    calendarEvent.save();
+                                }
+                            }).addAll(calEvents).build())  // add elements (can also handle multiple)
+                    .error(new Transaction.Error() {
+                        @Override
+                        public void onError(Transaction transaction, Throwable error) {
+                            Log.e("insert error",transaction.error().toString());
+                        }
+                    })
+                    .success(new Transaction.Success() {
+                        @Override
+                        public void onSuccess(Transaction transaction) {
+
+                        }
+                    }).build().execute();
 
             return true;
         }

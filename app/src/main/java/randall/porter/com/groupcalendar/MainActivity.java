@@ -28,17 +28,17 @@ public class MainActivity extends AppCompatActivity{
         activityLayout.setPadding(16, 16, 16, 16);
 
 
-        final Button apiButton;
-        apiButton = new Button(this);
-        apiButton.setText("Setup Account");
-        apiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), AccountActivity.class);
-                startActivity(intent);
-            }
-        });
-        activityLayout.addView(apiButton);
+//        final Button apiButton;
+//        apiButton = new Button(this);
+//        apiButton.setText("Setup Account");
+//        apiButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(v.getContext(), AccountActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+//        activityLayout.addView(apiButton);
 
         final Button ViewEvents;
         ViewEvents = new Button(this);
@@ -64,7 +64,25 @@ public class MainActivity extends AppCompatActivity{
         });
         activityLayout.addView(addEvent);
 
+        final Button addCalendar;
+        addCalendar = new Button(this);
+        addCalendar.setText("Add Calendar");
+        addCalendar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), ManageCalendarList.class);
+                startActivity(intent);
+            }
+        });
+        activityLayout.addView(addCalendar);
 
         setContentView(activityLayout);
+
+        if (((MyApplication)this.getApplication()).getCurrentCredentials() == null){
+            Intent intent = new Intent(getBaseContext(), AccountActivity.class);
+            startActivity(intent);
+        }
+
+
     }
 }

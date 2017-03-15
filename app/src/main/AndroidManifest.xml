@@ -43,7 +43,9 @@
         </activity>
         <activity android:name=".CalendarEventListItem" />
         <activity android:name=".CalendarEventList" />
-        <activity android:name=".AddEvent"></activity>
+        <activity android:name=".AddEvent" />
+        <activity android:name=".ManageCalendarList" />
+        <activity android:name=".CalendarObjectListItem"></activity>
     </application>
 
 </manifest>

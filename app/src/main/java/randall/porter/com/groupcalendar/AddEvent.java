@@ -62,7 +62,6 @@ public class AddEvent extends AppCompatActivity {
         calendarEvent.setStartTime((Date) txtStart.getTag());
         calendarEvent.setEndTime((Date) txtEnd.getTag());
         calendarEvent.setCalendarID("randallporter0@gmail.com"); // TODO: 3/14/2017 change from static
-        calendarEvent.setCreatorEmail("randallporter0@gmail.com");// TODO: 3/14/2017 change from static
 
         CalendarManager calendarManager = new CalendarManager((MyApplication)this.getApplication());
         //insert event will save and send to google calendar
