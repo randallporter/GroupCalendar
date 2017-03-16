@@ -13,4 +13,22 @@
     tools:context="randall.porter.com.groupcalendar.NavDrawer"
     tools:showIn="@layout/app_bar_nav_drawer">
 
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:srcCompat="@mipmap/logo"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="108dp"
+        android:id="@+id/imageView2" />
+
+    <TextView
+        android:text="Life Together"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/textView4"
+        android:gravity="center"
+        android:textSize="30sp" />
 </RelativeLayout>
